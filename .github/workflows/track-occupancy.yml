@@ -1,0 +1,44 @@
+name: Track Studio Occupancy
+
+on:
+  schedule:
+    # Every 15 minutes during opening hours (UTC: 04:00-23:00 covers DE 06:00-01:00)
+    - cron: '*/15 4-23 * * *'
+  workflow_dispatch:
+    inputs:
+      generate_dashboard:
+        description: 'Also regenerate dashboard'
+        type: boolean
+        default: true
+
+permissions:
+  contents: write
+
+jobs:
+  track:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Fetch occupancy data
+        run: python scraper/fetch_occupancy.py
+
+      - name: Generate dashboard
+        if: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.generate_dashboard == 'true' }}
+        run: python scraper/generate_dashboard.py
+
+      - name: Commit data
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data/
+          if git diff --cached --quiet; then
+            echo "No changes to commit"
+          else
+            git commit -m "data: occupancy $(date -u '+%Y-%m-%d %H:%M') UTC"
+            git push
+          fi
