@@ -5,10 +5,13 @@ import csv
 import json
 import os
 import sys
-from datetime import datetime, timezone
+from datetime import datetime, timezone, timedelta
 from pathlib import Path
 from urllib.request import Request, urlopen
 from urllib.error import URLError, HTTPError
+from zoneinfo import ZoneInfo
+
+TZ_BERLIN = ZoneInfo("Europe/Berlin")
 
 STUDIO_ID = "1281492160"
 API_URL = f"https://www.ai-fitness.de/connect/v1/studio/{STUDIO_ID}/utilization"
@@ -31,7 +34,7 @@ def get_current_occupancy(data: dict) -> tuple[int, str]:
 
 
 def main():
-    now = datetime.now(timezone.utc)
+    now = datetime.now(TZ_BERLIN)
     timestamp = now.strftime("%Y-%m-%d %H:%M:%S")
     date_str = now.strftime("%Y-%m-%d")
     time_str = now.strftime("%H:%M")
@@ -57,7 +60,7 @@ def main():
     with open(CSV_FILE, "a", newline="") as f:
         writer = csv.writer(f)
         if write_header:
-            writer.writerow(["timestamp", "date", "time_utc", "weekday", "percentage", "level", "time_slot"])
+            writer.writerow(["timestamp", "date", "time", "weekday", "percentage", "level", "time_slot"])
         writer.writerow([timestamp, date_str, time_str, weekday, percentage, level, current_slot])
 
     print(f"[{timestamp}] Occupancy: {percentage}% ({level}) slot={current_slot}")

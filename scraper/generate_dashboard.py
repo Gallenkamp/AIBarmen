@@ -5,6 +5,9 @@ import csv
 import json
 from collections import defaultdict
 from datetime import datetime, timedelta, timezone
+from zoneinfo import ZoneInfo
+
+TZ_BERLIN = ZoneInfo("Europe/Berlin")
 from pathlib import Path
 
 DATA_DIR = Path(__file__).resolve().parent.parent / "data"
@@ -35,7 +38,7 @@ def read_csv() -> list[dict]:
 
 
 def generate_dashboard(rows: list[dict]):
-    now = datetime.now(timezone.utc)
+    now = datetime.now(TZ_BERLIN)
     week_ago = (now - timedelta(days=7)).strftime("%Y-%m-%d")
     month_ago = (now - timedelta(days=30)).strftime("%Y-%m-%d")
 
@@ -50,7 +53,7 @@ def generate_dashboard(rows: list[dict]):
         table_html_rows.append(
             f'<tr class="{level_class}">'
             f'<td>{r["date"]}</td>'
-            f'<td>{r["time_utc"]}</td>'
+            f'<td>{r["time"]}</td>'
             f"<td>{wd}</td>"
             f'<td><div class="bar-cell"><div class="bar" style="width:{r["percentage"]}%"></div>'
             f'<span>{r["percentage"]}%</span></div></td>'
@@ -60,12 +63,12 @@ def generate_dashboard(rows: list[dict]):
 
     week_by_day_hour = defaultdict(list)
     for r in week_rows:
-        key = f'{r["date"]} {r["time_utc"][:2]}h'
+        key = f'{r["date"]} {r["time"][:2]}h'
         week_by_day_hour[r["date"]].append(r["percentage"])
 
     week_chart_data = []
     for r in week_rows:
-        week_chart_data.append({"x": f'{r["date"]} {r["time_utc"]}', "y": r["percentage"]})
+        week_chart_data.append({"x": f'{r["date"]} {r["time"]}', "y": r["percentage"]})
 
     month_avg_by_day = defaultdict(list)
     for r in month_rows:
@@ -80,7 +83,7 @@ def generate_dashboard(rows: list[dict]):
     week_heatmap = defaultdict(lambda: defaultdict(list))
     for r in week_rows:
         wd = r.get("weekday", "")
-        hour = r["time_utc"][:2]
+        hour = r["time"][:2]
         week_heatmap[wd][hour].append(r["percentage"])
 
     heatmap_data = {}
@@ -91,7 +94,7 @@ def generate_dashboard(rows: list[dict]):
             vals = week_heatmap[wd].get(hour_key, [])
             heatmap_data[WEEKDAY_DE.get(wd, wd)][hour_key] = round(sum(vals) / len(vals), 1) if vals else None
 
-    generated_at = now.strftime("%Y-%m-%d %H:%M:%S UTC")
+    generated_at = now.strftime("%Y-%m-%d %H:%M:%S")
 
     html = f"""<!DOCTYPE html>
 <html lang="de">
@@ -172,7 +175,7 @@ canvas {{ width: 100% !important; height: 100% !important; }}
   <h2>Letzte Messungen</h2>
   <div class="table-wrap">
     <table>
-      <thead><tr><th>Datum</th><th>Zeit (UTC)</th><th>Tag</th><th>Auslastung</th><th>Level</th></tr></thead>
+      <thead><tr><th>Datum</th><th>Zeit</th><th>Tag</th><th>Auslastung</th><th>Level</th></tr></thead>
       <tbody>{''.join(table_html_rows) if table_html_rows else '<tr><td colspan="5" class="no-data">Noch keine Daten</td></tr>'}</tbody>
     </table>
   </div>
@@ -336,6 +339,11 @@ heatmapEl.innerHTML = heatHtml;
 
     DASHBOARD_FILE.write_text(html)
     print(f"Dashboard generated: {DASHBOARD_FILE}")
+
+    docs_dir = Path(__file__).resolve().parent.parent / "docs"
+    docs_dir.mkdir(parents=True, exist_ok=True)
+    (docs_dir / "index.html").write_text(html)
+    print(f"Dashboard copied: {docs_dir / 'index.html'}")
 
 
 if __name__ == "__main__":
