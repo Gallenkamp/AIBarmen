@@ -28,14 +28,13 @@ jobs:
         run: python scraper/fetch_occupancy.py
 
       - name: Generate dashboard
-        if: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.generate_dashboard == 'true' }}
         run: python scraper/generate_dashboard.py
 
       - name: Commit data
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add data/
+          git add data/ docs/
           if git diff --cached --quiet; then
             echo "No changes to commit"
           else
