@@ -2,8 +2,8 @@ name: Track Studio Occupancy
 
 on:
   schedule:
-    # Every 15 minutes during opening hours (UTC: 04:00-23:00 covers DE 06:00-01:00)
-    - cron: '*/15 4-23 * * *'
+    # Hourly during opening hours (UTC: 04:00-23:00 covers DE 06:00-01:00)
+    - cron: '0 4-23 * * *'
   workflow_dispatch:
     inputs:
       generate_dashboard:
