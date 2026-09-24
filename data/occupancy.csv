@@ -73,3 +73,4 @@ timestamp,date,time,weekday,percentage,level,time_slot
 2026-09-23 20:55:40,2026-09-23,20:55,Wednesday,30,LOW,20:00:00-21:00:00
 2026-09-24 00:09:32,2026-09-24,00:09,Thursday,-1,UNKNOWN,
 2026-09-24 03:15:08,2026-09-24,03:15,Thursday,-1,UNKNOWN,
+2026-09-24 11:09:50,2026-09-24,11:09,Thursday,15,LOW,11:00:00-12:00:00
