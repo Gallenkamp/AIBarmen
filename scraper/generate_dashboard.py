@@ -33,6 +33,8 @@ def read_csv() -> list[dict]:
         reader = csv.DictReader(f)
         for row in reader:
             row["percentage"] = int(row["percentage"])
+            if row["percentage"] < 0:
+                continue
             rows.append(row)
     return rows
 
