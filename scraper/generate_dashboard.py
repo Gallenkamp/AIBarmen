@@ -220,16 +220,11 @@ if (allPercentages.length > 0) {{
   `;
 }}
 
-function showTab(name) {{
-  document.querySelectorAll('.section').forEach(s => s.style.display = 'none');
-  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-  document.getElementById('tab-' + name).style.display = '';
-  event.target.classList.add('active');
-}}
+const charts = {{}};
 
-// Week chart
-if (weekData.length > 0) {{
-  new Chart(document.getElementById('weekChart'), {{
+function initWeekChart() {{
+  if (charts.week || weekData.length === 0) return;
+  charts.week = new Chart(document.getElementById('weekChart'), {{
     type: 'line',
     data: {{
       labels: weekData.map(d => d.x),
@@ -265,9 +260,9 @@ if (weekData.length > 0) {{
   }});
 }}
 
-// Month chart
-if (monthData.length > 0) {{
-  new Chart(document.getElementById('monthChart'), {{
+function initMonthChart() {{
+  if (charts.month || monthData.length === 0) return;
+  charts.month = new Chart(document.getElementById('monthChart'), {{
     type: 'bar',
     data: {{
       labels: monthData.map(d => d.date),
@@ -305,6 +300,15 @@ if (monthData.length > 0) {{
       }}
     }}
   }});
+}}
+
+function showTab(name) {{
+  document.querySelectorAll('.section').forEach(s => s.style.display = 'none');
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('tab-' + name).style.display = '';
+  event.target.classList.add('active');
+  if (name === 'week') initWeekChart();
+  if (name === 'month') initMonthChart();
 }}
 
 // Heatmap
