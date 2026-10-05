@@ -48,6 +48,10 @@ def main():
 
     percentage, level = get_current_occupancy(data)
 
+    if percentage < 0:
+        print(f"[{timestamp}] Studio closed (no current slot), skipping.")
+        sys.exit(0)
+
     current_slot = None
     for item in data.get("items", []):
         if item.get("isCurrent"):
