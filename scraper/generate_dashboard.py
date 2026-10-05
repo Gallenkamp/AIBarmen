@@ -167,10 +167,10 @@ canvas {{ width: 100% !important; height: 100% !important; }}
 <div class="stats" id="stats"></div>
 
 <div class="tabs">
-  <button class="tab active" onclick="showTab('table')">Tabelle</button>
-  <button class="tab" onclick="showTab('week')">Woche</button>
-  <button class="tab" onclick="showTab('month')">Monat</button>
-  <button class="tab" onclick="showTab('heatmap')">Heatmap</button>
+  <button class="tab active" onclick="showTab('table', this)">Tabelle</button>
+  <button class="tab" onclick="showTab('week', this)">Woche</button>
+  <button class="tab" onclick="showTab('month', this)">Monat</button>
+  <button class="tab" onclick="showTab('heatmap', this)">Heatmap</button>
 </div>
 
 <div id="tab-table" class="section">
@@ -302,13 +302,15 @@ function initMonthChart() {{
   }});
 }}
 
-function showTab(name) {{
+function showTab(name, btn) {{
   document.querySelectorAll('.section').forEach(s => s.style.display = 'none');
   document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
   document.getElementById('tab-' + name).style.display = '';
-  event.target.classList.add('active');
-  if (name === 'week') initWeekChart();
-  if (name === 'month') initMonthChart();
+  btn.classList.add('active');
+  requestAnimationFrame(function() {{
+    if (name === 'week') initWeekChart();
+    if (name === 'month') initMonthChart();
+  }});
 }}
 
 // Heatmap
